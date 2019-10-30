@@ -1,0 +1,341 @@
+<html>
+    <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        <style>
+              body {
+                margin: 0px;
+                padding: 0px;
+              }
+        </style>
+    </head>
+    <body>
+        <canvas id="myCanvas" width="500" height="500"></canvas>
+        <A HREF="game_rules.html">Rules of the game</A>
+        <script>
+       
+            //Enter and store usernames
+            var player1Name = "player one"; //prompt("Player One, enter your name.", "Player One");
+           
+            if(localStorage.getItem(player1Name + "w") == null)
+            {
+                localStorage.setItem(player1Name + "w", 0);
+                localStorage.setItem(player1Name + "l", 0);
+                console.log("Name Stored.");
+            }
+            else
+            {
+                console.log("Name already exists.");
+            }
+           
+            var player2Name = "player two"; //prompt("Player Two, enter your name.", "Player Two");
+                       
+            if(localStorage.getItem(player2Name + "w") == null)
+            {
+                localStorage.setItem(player2Name + "w", 0);
+                localStorage.setItem(player2Name + "l", 0);
+                console.log("Name Stored.");
+            }
+            else
+            {
+                console.log("Name already exists.");
+            }
+           
+       
+            //canvas info
+            var canvas = document.getElementById('myCanvas');
+            var context = canvas.getContext('2d');
+           
+           
+            //function to return mouse position x, y
+            function getMousePos(canvas, evt) {
+                   var rect = canvas.getBoundingClientRect();
+                return {
+                    x: evt.clientX - rect.left,
+                    y: evt.clientY - rect.top
+                };
+            }
+           
+           
+            var whoseTurn = 0;
+           
+                         
+              var boardState = [[0, 0, 0, 0, 0, 0, 0, 0],
+                                [0, 0, 0, 0, 0, 0, 0, 0],
+                                [0, 0, 0, 0, 0, 0, 0, 0],
+                                [0, 0, 0, 0, 0, 0, 0, 0],
+                                [0, 0, 0, 0, 0, 0, 0, 0],
+                                [0, 0, 0, 0, 0, 0, 0, 0],
+                                [0, 0, 0, 0, 0, 0, 0, 0],
+                                [0, 0, 0, 0, 0, 0, 0, 0]];
+         
+           
+            //function for writing messages at the bottom of the screen
+            function writeMessage(canvas, message) {
+            context.clearRect(0, 405, canvas.width, canvas.height);
+            if(redWins() || blueWins())
+            {
+            context.font = '12pt Calibri';
+            }
+            else
+            {
+            context.font = '18pt Calibri';
+            }
+           
+            if(whoseTurn % 2 == 0)
+            {
+                context.fillStyle = 'red';
+            }
+            else
+            {
+                context.fillStyle = 'blue';
+            }
+            context.fillText(message, 10, 450);
+            }
+           
+            //defines red block
+            var redBlock = document.createElement("img");
+              redBlock.src = "red_block.png";
+             
+              //defines blue block   
+              var blueBlock = document.createElement("img");
+              blueBlock.src = "blue_block.png";
+           
+           
+           
+            //function that runs whenever the mouse is clicked on the canvas
+            canvas.addEventListener('mousedown', function(evt) {
+           
+                var mousePos = getMousePos(canvas, evt);
+           
+            if(redWins())
+            {
+                writeMessage(myCanvas, player1Name + " wins! Wins: " + localStorage.getItem(player1Name + "w") + ", Losses: " + localStorage.getItem(player1Name + "l") + ". Refresh the page to play again.");
+            }
+            else if (blueWins())
+            {
+                writeMessage(myCanvas, player2Name + " wins! Wins: " + localStorage.getItem(player2Name + "w") + ", Losses: " + localStorage.getItem(player2Name + "l") + ". Refresh the page to play again.");
+            }
+               
+            else
+            {
+               
+                  //red's turn
+                  if (whoseTurn % 2 == 0)
+                  {
+                      writeMessage(myCanvas, player1Name + "'s Turn");
+                     
+                      var row = Math.round(mousePos.y / 50);
+                      var col = Math.floor(mousePos.x / 50);
+                     
+                      //if a legal move
+                      if((row > 0) && (row < 9) && (col >= 0) && (col < 9) && (boardState[row][col] == 0) && (boardState[row - 1][col] == 0))
+                      {
+                          context.drawImage(redBlock, (col*50) + 10, (row*50) - 35, 30, 70);
+                     
+                          boardState[row][col] = 1;
+                          boardState[row - 1][col] = 1;
+                 
+                          whoseTurn += 1;
+                         
+                          if(redWins())
+                        {
+                            whoseTurn += 1;
+                           
+                            var winUpdate = parseInt(localStorage.getItem(player1Name + "w"), 10);
+                            winUpdate += 1;
+                            localStorage.setItem(player1Name + "w", winUpdate);
+                           
+                            var lossUpdate = parseInt(localStorage.getItem(player2Name + "l"), 10);
+                            lossUpdate += 1;
+                            localStorage.setItem(player2Name + "l", lossUpdate);
+                           
+                            writeMessage(myCanvas, player1Name + " wins! Wins: " + localStorage.getItem(player1Name + "w") + ", Losses: " + localStorage.getItem(player1Name + "l") + ". Refresh the page to play again.");
+                        }
+                        else if(blueWins())
+                        {
+                            var winUpdate = parseInt(localStorage.getItem(player2Name + "w"), 10);
+                            winUpdate += 1;
+                            localStorage.setItem(player2Name + "w", winUpdate);
+                           
+                            var lossUpdate = parseInt(localStorage.getItem(player1Name + "l"), 10);
+                            lossUpdate += 1;
+                            localStorage.setItem(player1Name + "l", lossUpdate);
+                           
+                            writeMessage(myCanvas, player2Name + " wins! Wins: " + localStorage.getItem(player2Name + "w") + ", Losses: " + localStorage.getItem(player2Name + "l") + ". Refresh the page to play again.");
+                        }
+                        else
+                        {
+                              writeMessage(myCanvas, player2Name + "'s Turn");
+                          }
+                      }
+                  }
+                 
+                  //blue's turn
+                  else
+                  {
+                      writeMessage(myCanvas, player2Name + "'s Turn");
+                 
+                      var row = Math.floor(mousePos.y / 50);
+                      var col = Math.round(mousePos.x / 50);
+                 
+                      //if a legal move
+                     if(row >= 0 && (row < 9) && (col > 0) && (col < 9) && (boardState[row][col] == 0) && boardState[row][col - 1] == 0)
+                     {
+                          context.drawImage(blueBlock, (col*50) - 35, (row*50) + 10, 70, 30);
+                     
+                          boardState[row][col] = 2;
+                          boardState[row][col-1] = 2;
+                         
+                          whoseTurn += 1;
+                         
+                          if(blueWins())
+                        {
+                            whoseTurn += 1;
+                           
+                            var winUpdate = parseInt(localStorage.getItem(player2Name + "w"), 10);
+                            winUpdate += 1;
+                            localStorage.setItem(player2Name + "w", winUpdate);
+                           
+                            var lossUpdate = parseInt(localStorage.getItem(player1Name + "l"), 10);
+                            lossUpdate += 1;
+                            localStorage.setItem(player1Name + "l", lossUpdate);
+                           
+                            writeMessage(myCanvas, player2Name + " wins! Wins: " + localStorage.getItem(player2Name + "w") + ", Losses: " + localStorage.getItem(player2Name + "l") + ". Refresh the page to play again.");
+                        }
+                        else if(redWins())
+                        {
+                            var winUpdate = parseInt(localStorage.getItem(player1Name + "w"), 10);
+                            winUpdate += 1;
+                            localStorage.setItem(player1Name + "w", winUpdate);
+                           
+                            var lossUpdate = parseInt(localStorage.getItem(player2Name + "l"), 10);
+                            lossUpdate += 1;
+                            localStorage.setItem(player2Name + "l", lossUpdate);
+                           
+                            writeMessage(myCanvas, player1Name + " wins! Wins: " + localStorage.getItem(player1Name + "w") + ", Losses: " + localStorage.getItem(player1Name + "l") + ". Refresh page to play again.");
+                        }
+                        else
+                        {
+                              writeMessage(myCanvas, player1Name + "'s Turn");
+                          }
+                      }
+                  }//else
+                 
+              }//else
+                 
+              }, false);
+             
+             
+             
+             
+             
+              writeMessage(myCanvas, player1Name + "'s Turn");
+
+             
+              function redWins()
+              {
+                  var blueMoves = 0;
+                 
+                  for(i = 0; i < 8; i++)
+                  {
+                      for(j = 0; j < 7; j++)
+                      {
+                          if(boardState[i][j] == 0 && boardState[i][j+1] == 0)
+                          {
+                              blueMoves += 1;
+                          }
+                      }
+                  }
+                 
+                  if(blueMoves > 0)
+                  {
+                      return false;
+                  }
+                  else
+                  {
+                      return true;
+                  }
+              }
+             
+              function blueWins()
+              {
+                  var redMoves = 0;
+                 
+                  for(i = 0; i < 7; i++)
+                  {
+                      for(j = 0; j < 8; j++)
+                      {
+                          if(boardState[i][j] == 0 && boardState[i+1][j] == 0)
+                          {
+                              redMoves += 1;
+                          }
+                      }
+                  }
+                 
+                  if(redMoves > 0)
+                  {
+                      return false;
+                  }
+                  else
+                  {
+                      return true;
+                  }
+              }
+             
+             
+             
+              //function to draw the domineering board
+              function drawBoard()
+              {
+                  //horizontal lines
+                  for (i = 1; i < 9; i++)
+                  {
+                      context.beginPath();
+                      context.moveTo(0, 50 * i);
+                      context.lineTo(400, 50 * i);
+                      context.strokeStyle = '#000000';
+                      context.stroke();
+                     
+                      //highlighting red circles
+                      for (j = 0; j < 8; j++)
+                      {
+                          if (i < 8){
+                          context.beginPath();
+                        context.arc(25 + (50*j), (50*i) , 4, 0, 2*Math.PI, false);
+                        context.lineWidth = 1;
+                        context.strokeStyle = '#FF0000';
+                        context.stroke();
+                        }
+                    }//for j
+                         
+                  }//for i
+                 
+                  //vertical lines
+                  for (i = 1; i < 9; i++)
+                  {
+                      context.beginPath();
+                      context.moveTo(50 * i, 0);
+                      context.lineTo(50 * i, 400);
+                      context.strokeStyle = '#000000';
+                      context.stroke();
+                     
+                      //highlighting blue circles
+                      for(j = 0; j < 8; j++)
+                      {
+                          if(i < 8){
+                          context.beginPath();
+                        context.arc((50*i), (50*j) + 25 , 4, 0, 2*Math.PI, false);
+                        context.lineWidth = 1;
+                        context.strokeStyle = '#0000FF';
+                        context.stroke();
+                        }
+                    }//for j
+                  }//for i
+                 
+              }//drawboard
+              drawBoard();
+
+        </script>
+    </body>
+</html>
