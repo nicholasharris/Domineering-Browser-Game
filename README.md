@@ -7,3 +7,5 @@ Includes an explanation of the rules, and keeps track of wins/losses between pla
 To play, just open the "domineering.html" file in your browser.
 
 Tested in Chrome/Firefox.
+
+![alt text](https://raw.githubusercontent.com/nicholasharris/Domineering-Browser-Game/master/domineering/game_screenshot.png)
